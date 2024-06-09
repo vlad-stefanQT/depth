@@ -1,0 +1,8 @@
+build/
+depth_video/
+install/
+log/
+.vscode/
+/Dockerfile
+/problem.txt
+src/pointcloud_hole_detection/
