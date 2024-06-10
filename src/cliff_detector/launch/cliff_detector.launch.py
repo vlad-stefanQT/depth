@@ -20,8 +20,8 @@ def generate_launch_description():
         executable='cliff_detector_node',
         parameters=[config],
         remappings=[
-            ('/image', '/turned_image'),
-            ('/camera_info', '/turned_camera_info'),
+            ('/image', '/camera/depth/image_rect_raw'),
+            ('/camera_info', '/camera/depth/camera_info'),
         ]
     )
 

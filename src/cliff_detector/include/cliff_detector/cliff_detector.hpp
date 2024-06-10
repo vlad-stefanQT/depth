@@ -119,6 +119,31 @@ public:
    * @brief Get depth image for debug purposes
    */
   sensor_msgs::msg::Image getDebugDepthImage() const;
+  /**
+   * @brief Set starting row block (subimage) where cliff detection is performed
+   * @param n Starting block row index
+   */
+  void setBlockRowStart(const int n);
+  /**
+   * @brief Set ending row block (subimage) where cliff detection is performed
+   * @param n Ending block row index
+   */
+  void setBlockRowEnd(const int n);
+  /**
+   * @brief Set starting column block (subimage) where cliff detection is performed
+   * @param n Starting block column index
+   */
+  void setBlockColStart(const int n);
+  /**
+   * @brief Set ending column block (subimage) where cliff detection is performed
+   * @param n Ending block column index
+   */
+  void setBlockColEnd(const int n);
+
+  unsigned getBlockRowStart(){return block_row_start_;}
+  unsigned getBlockRowEnd(){return block_row_end_;}
+  unsigned getBlockColStart(){return block_col_start_;}
+  unsigned getBlockColEnd(){return block_col_end_;}
 
 protected:
   /**
@@ -172,6 +197,18 @@ protected:
    * @brief calcTiltCompensationFactorsForImgRows calculate factors used in tilt compensation
    */
   void calcTiltCompensationFactorsForImgRows();
+  /**
+   * @brief Ensure that subimage borders are reasonable
+   * 
+   * Checks that block_row_end_ and block_col_end_ are inferior to the maximum number of blocks in
+   * rows and columns respectively. Otherwise block_row_end_ and block_col_end_ are set to the maximum.
+   * Also ensures that block_row_start_ and block_col_start are inferior to block_row_end_ and
+   * block_col_end_
+   * 
+   * @param block_rows_nr Maximum number of blocks in a row
+   * @param block_cols_nr Maximum number of blocks in a column
+   */
+  void rectifySubImageBorders(const unsigned block_rows_nr, const unsigned block_cols_nr);
 
 private:
   float range_min_;  ///< Stores the current minimum range to use
@@ -186,6 +223,11 @@ private:
   unsigned depth_image_step_row_;  ///< Rows step in depth processing (px).
   unsigned depth_image_step_col_;  ///< Columns step in depth processing (px).
   float ground_margin_;  ///< Margin for ground points feature detector (m)
+
+  unsigned block_row_start_;  ///< Starting row block (subimage) where cliff detection is performed 
+  unsigned block_row_end_;  ///< Ending row block (subimage) where cliff detection is performed
+  unsigned block_col_start_;  ///< Starting column block (subimage) where cliff detection is performed 
+  unsigned block_col_end_;  ///< Ending column block (subimage) where cliff detection is performed
 
   bool depth_sensor_params_update = false;
   /// Class for managing sensor_msgs/CameraInfo messages

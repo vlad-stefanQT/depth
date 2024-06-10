@@ -15,3 +15,7 @@ cliff_detector:
     depth_img_step_row: 8
     depth_img_step_col: 8
     ground_margin: 0.05
+    block_row_start: 7
+    block_col_start: 0
+    block_row_end: 15
+    block_col_end: 10000

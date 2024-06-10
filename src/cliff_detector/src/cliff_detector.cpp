@@ -176,6 +176,46 @@ void CliffDetector::setGroundMargin(const float margin)
   }
 }
 
+void CliffDetector::setBlockRowStart(const int n){
+  if (n < 0)
+  {
+    block_row_start_ = 0;
+  } else
+  {
+    block_row_start_ = n;
+  }
+}
+
+void CliffDetector::setBlockRowEnd(const int n){
+  if (n < 0)
+  {
+    block_row_end_ = 0;
+  } else
+  {
+    block_row_end_ = n;
+  }
+}
+
+void CliffDetector::setBlockColStart(const int n){
+  if (n < 0)
+  {
+    block_col_start_ = 0;
+  } else
+  {
+    block_col_start_ = n;
+  }
+}
+
+void CliffDetector::setBlockColEnd(const int n){
+  if (n < 0)
+  {
+    block_col_end_ = 0;
+  } else
+  {
+    block_col_end_ = n;
+  }
+}
+
 double CliffDetector::angleBetweenRays(
   const cv::Point3d & ray1, const cv::Point3d & ray2) const
 {
@@ -248,6 +288,29 @@ void CliffDetector::calcTiltCompensationFactorsForImgRows()
   }
 }
 
+void CliffDetector::rectifySubImageBorders(const unsigned block_rows_nr, const unsigned block_cols_nr)
+{
+  if (block_row_end_ > block_rows_nr)
+  {
+    block_row_end_ = block_rows_nr;
+  }
+
+  if (block_col_end_ > block_cols_nr)
+  {
+    block_col_end_ = block_cols_nr;
+  }
+
+  if (block_row_start_ > block_row_end_)
+  {
+    block_row_start_ = block_row_end_ - 1;
+  }
+  
+  if (block_col_start_ > block_col_end_)
+  {
+    block_col_start_ = block_col_end_ - 1;
+  }
+}
+
 sensor_msgs::msg::Image CliffDetector::getDebugDepthImage() const
 {
   return debug_depth_msg_;
@@ -271,6 +334,8 @@ void CliffDetector::findCliffInDepthImage(
 
   const unsigned block_cols_nr = img_width / block_size_;
   const unsigned block_rows_nr = used_depth_height_ / block_size_;
+  // Check subimage dimensions
+  rectifySubImageBorders(block_rows_nr, block_cols_nr);
 
   // Check if points thresh isn't too big
   if (block_points_thresh_ >= (block_size_ * block_size_ / depth_image_step_col_ /
@@ -300,9 +365,9 @@ void CliffDetector::findCliffInDepthImage(
   center_points[3] = (c - 1) * block_size_ + c;
 
   // Loop over each block row in image, bj - block column
-  for (unsigned bj = 0; bj < block_rows_nr; ++bj) {
+  for (unsigned bj = block_row_start_; bj < block_row_end_; ++bj) {
     // Loop over each block column in image, bi - block row
-    for (unsigned bi = 0; bi < block_cols_nr; ++bi) {
+    for (unsigned bi = block_col_start_; bi < block_col_end_; ++bi) {
       // Block processing
       unsigned block_cnt = 0;
       std::fill(px_nr.begin(), px_nr.end(), -1);
