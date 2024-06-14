@@ -1,92 +1,56 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.5)
 project(cliff_detector)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(image_geometry REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 
-# Include directories
-include_directories(include)
+ament_auto_find_build_dependencies()
 
-# Add executable
-add_executable(cliff_detector_node 
-  src/main.cpp
-  src/cliff_detector_node.cpp
+### Build
+ament_auto_add_library(${PROJECT_NAME}
   src/cliff_detector.cpp
+  src/cliff_detector_node.cpp
 )
 
-ament_target_dependencies(cliff_detector_node
-    rclcpp
-    image_geometry
-    image_transport
-    sensor_msgs
-    geometry_msgs
-    cv_bridge
+ament_auto_add_executable(${PROJECT_NAME}_exe
+  src/main.cpp
 )
 
-# Add executable
-add_executable(cliff_reaction_node 
-  src/cliff_reaction_node.cpp
-)
+target_link_libraries(${PROJECT_NAME}_exe ${PROJECT_NAME})
 
-ament_target_dependencies(cliff_reaction_node
-    rclcpp
-    sensor_msgs
-    geometry_msgs
-    std_msgs
-)
-
-# Install executables
-install(TARGETS
-  cliff_detector_node
-  cliff_reaction_node
-  DESTINATION lib/${PROJECT_NAME})
-
-
-# Install header files
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME})
-
-  install(DIRECTORY
-  launch
-  config
-  DESTINATION share/${PROJECT_NAME}/
-)
-
-
-# Export dependencies
-ament_export_dependencies(
-    rclcpp
-    image_geometry
-    image_transport
-    sensor_msgs
-    std_msgs
-    geometry_msgs
-    cv_bridge
-)
-
+# Unit tests
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gtest REQUIRED)
+
+  ament_add_gtest(${PROJECT_NAME}_test
+    test/cliff_detector_test.cpp
+  )
+  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 endif()
 
-ament_package()
+# Export package
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+ament_export_dependencies(${PROJECT_NAME} PUBLIC image_geometry image_transport sensor_msgs)
+
+### Install
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+  config
+)

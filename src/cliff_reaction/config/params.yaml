@@ -1,0 +1,4 @@
+cliff_reaction:
+  ros__parameters:
+    threshold: 0.05
+    image_size: 339200

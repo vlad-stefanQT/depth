@@ -17,7 +17,7 @@ namespace image_turn
 
     protected:
         /**
-         * @brief callback used when a new image is published to publish an image tilted by 90 degrees clockwise
+         * @brief Callback used when a new image is published to publish an image tilted by 90 degrees clockwise
          * 
          * @param img image provide by transport_image
          * 
@@ -25,17 +25,20 @@ namespace image_turn
         void imgCallback(const sensor_msgs::msg::Image::ConstSharedPtr & img);
 
         /**
-         * @brief callback used when a new camera info is publishe to modify K and P matrices
+         * @brief Callback used when a new camera info is publishe to modify K and P matrices
          * 
          * @param camera_info message published on camera_info topic
          * 
         */
         void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr & camera_info);
 
+        /// @brief Subscriber for depth image
         image_transport::CameraSubscriber image_sub_;
+        /// @brief Publisher for turned images
         image_transport::Publisher image_pub_;
-
+        /// @brief Subscriber for camera info
         rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_sub_;
+        /// @brief Publisher for turned camera info
         rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_pub_;
     };
 }

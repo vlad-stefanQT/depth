@@ -1,5 +1,4 @@
-#include "cliff_detector/cliff_reaction_node.hpp"
-
+#include "cliff_reaction/cliff_reaction_node.hpp"
 
 CliffReactionNode::CliffReactionNode()
 : Node("cliff_reaction")
@@ -12,8 +11,8 @@ CliffReactionNode::CliffReactionNode()
     points_sub = this->create_subscription<geometry_msgs::msg::PolygonStamped>("points", 2, 
         std::bind(& CliffReactionNode::pointsCallback, this, std::placeholders::_1));
 
-    camera_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>("turned_camera_info", 10,
-        std::bind(& CliffReactionNode::cameraInfoCallback, this, std::placeholders::_1));
+    //camera_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>("turned_camera_info", 10,
+    //    std::bind(& CliffReactionNode::cameraInfoCallback, this, std::placeholders::_1));
 
     warning_pub = this->create_publisher<std_msgs::msg::String>("warning", 10);
     RCLCPP_INFO(this->get_logger(), "cliff reaction node initialised");
@@ -32,13 +31,25 @@ rcl_interfaces::msg::SetParametersResult CliffReactionNode::parametersCallback(
         for (const auto & parameter : parameters) {
             if (parameter.get_name() == "threshold") {
                 setThreshold(parameter.as_double());
-            }
+            } else if (parameter.get_name() == "image_size") {
+                setImageSize(parameter.as_int());
+            } 
         }
     } catch (const std::exception & e) {
         RCLCPP_ERROR(this->get_logger(), e.what());
     }
     
     return result;
+}
+
+void CliffReactionNode::setImageSize(int image_size){
+    if (im_size < 0)
+    {
+        im_size = 0;
+    } else
+    {
+        im_size = image_size;
+    }
 }
 
 void CliffReactionNode::setThreshold(double t)
